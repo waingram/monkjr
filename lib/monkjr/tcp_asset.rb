@@ -1,6 +1,5 @@
-require 'monkjr'
 
-class TcpAsset < ActiveFedora::Base
+class Monkjr::TcpAsset < ActiveFedora::Base
   
   has_metadata :name => 'teiHeader', :type => ActiveFedora::NokogiriDatastream
 

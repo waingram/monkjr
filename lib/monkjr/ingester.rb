@@ -1,4 +1,3 @@
-require 'monkjr'
 require 'om'
 
 class Monkjr::Ingester 
