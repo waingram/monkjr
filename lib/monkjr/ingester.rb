@@ -24,11 +24,12 @@ class Monkjr::Ingester
         tcp_asset = Monkjr::TcpAsset.new(:pid => pid)
         tcp_asset.datastreams['teiHeader'].ng_xml = tei_header_xml
         tcp_asset.datastreams['teiHeader'].attributes[:dsLabel] = "TEI Header"
-        
+
         tei_ds = ActiveFedora::Datastream.new(:dsId => "TEI", :dsLabel => "TEI XML", :controlGroup => "M", :blob => File.open(package_file(f)))
         tcp_asset.add_datastream(tei_ds)
 
-        tcp_asset.datastreams['properties'].title_values << title
+        tcp_asset.datastreams['properties'].title_values
+        tcp_asset.label = title<< title
 
         tcp_asset.save
         return tcp_asset
