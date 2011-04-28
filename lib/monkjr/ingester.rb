@@ -28,8 +28,8 @@ class Monkjr::Ingester
         tei_ds = ActiveFedora::Datastream.new(:dsId => "TEI", :dsLabel => "TEI XML", :controlGroup => "M", :blob => File.open(package_file(f)))
         tcp_asset.add_datastream(tei_ds)
 
-        tcp_asset.datastreams['properties'].title_values
-        tcp_asset.label = title<< title
+        tcp_asset.datastreams['properties'].title_values << title
+        tcp_asset.label = title
 
         tcp_asset.save
         return tcp_asset
