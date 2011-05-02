@@ -1,7 +1,9 @@
 
-class Monkjr::TcpAsset < ActiveFedora::Base
+class Monkjr::TcpBookAsset < ActiveFedora::Base
   
   has_metadata :name => 'teiHeader', :type => ActiveFedora::NokogiriDatastream
+
+  has_metadata :name => 'descMetadata', :type => ActiveFedora::NokogiriDatastream
 
   has_metadata :name => 'properties', :type => ActiveFedora::MetadataDatastream do |p|
     p.field 'title', :string

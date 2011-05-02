@@ -13,12 +13,12 @@ class Monkjr::Ingester
     Dir.entries(package_dir).each do |f|
       next if File.directory?(f)
 
-      item = create_item(f)
+      book = create_book(f)
 
     end
   end
 
-  def create_item(file)
+  def create_book(file)
     puts "Processing #{file}..."
     begin
       tei_xml        = package_file_xml(file)
@@ -28,23 +28,59 @@ class Monkjr::Ingester
       pid            = tcpid_to_pid(tcpid)
 
       replacing_object(pid) do
-        tcp_asset                                               = Monkjr::TcpAsset.new(:pid => pid)
-        tcp_asset.datastreams['teiHeader'].ng_xml               = tei_header_xml
-        tcp_asset.datastreams['teiHeader'].attributes[:dsLabel] = "TEI Header"
-
+        tcp_book_asset = Monkjr::TcpBookAsset.new(:pid => pid)
+        #TEI header ds
+        tei_header_ds                      = tcp_book_asset.datastreams['teiHeader']
+        tei_header_ds.ng_xml               = tei_header_xml
+        tei_header_ds.attributes[:dsLabel] = "TEI Header"
+        #TEI XML
         tei_ds = ActiveFedora::Datastream.new(:dsId => "TEI", :dsLabel => "TEI XML", :controlGroup => "M", :blob => File.open(package_file(file)))
-        tcp_asset.add_datastream(tei_ds)
+        tcp_book_asset.add_datastream(tei_ds)
+        #Properties ds
+        tcp_book_asset.datastreams['properties'].title_values << title
+        tcp_book_asset.label = title
 
-        tcp_asset.datastreams['properties'].title_values << title
-        tcp_asset.label = title
+        tcp_book_asset.save
+        #Pages
+        create_page_images(pid, tei_xml)
 
-        tcp_asset.save
-        tcp_asset
+        tcp_book_asset
       end
     rescue Exception => e
       puts "[ERROR] #{e.message}"
     end
 
+  end
+
+  def create_page_images(book_pid, tei_xml)
+    #doc        = Nokogiri::XML(File.open(tei_xml))
+    page_nodes = tei_xml.css("pb")
+    page_nodes.each do |pn|
+      n        = pn['n']
+      facs     = pn['facs']
+      page_pid = "#{book_pid}.#{facs}"
+
+      create_page_image(page_pid, n, facs)
+    end
+
+  end
+
+  def create_page_image(pid, n="", facs="")
+    replacing_object(pid) do
+      tcp_image_asset = Monkjr::TcpPageAsset.new(:pid => pid)
+      #properties ds
+      props_ds = tcp_image_asset.datastreams['properties']
+      props_ds.n_values << n
+      props_ds.facs_values << facs
+      #content
+
+      #RELS_EXT
+      tcp_image_asset.has_relationship()
+
+      tcp_image_asset.save
+      tcp_image_asset
+
+    end
   end
 
   def package_file(*args)

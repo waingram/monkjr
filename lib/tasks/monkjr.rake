@@ -17,3 +17,15 @@ task :ingest => :environment do
 
   Monkjr::Ingester.new(package_dir).ingest
 end
+
+
+task :test_pages => :environment do
+  package_dir = ENV['INGEST_SOURCE_DIR']
+  raise "Define environment variable INGEST_SOURCE_DIR" unless package_dir
+
+  package_tei = ENV['INGEST_SOURCE_TEI']
+  raise "Define environment variable INGEST_SOURCE_TEI" unless package_tei
+
+
+  Monkjr::Ingester.new(package_dir).create_page_images('xxx',package_tei)
+end
