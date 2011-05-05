@@ -54,8 +54,8 @@ class Monkjr::Ingester
 
   def create_page_images(book_pid, tei_xml)
     #doc        = Nokogiri::XML(File.open(tei_xml))
-    image_set_id   = get_image_set_id(tei_xml)
-    page_nodes = tei_xml.css("pb")
+    image_set_id = get_image_set_id(tei_xml)
+    page_nodes   = tei_xml.css("pb")
     page_nodes.each do |pn|
       n        = pn['n']
       facs     = pn['facs']
@@ -75,7 +75,7 @@ class Monkjr::Ingester
       props_ds.facs_values << facs
       #content
       image_url = gale_url(facs, image_set_id)
-      image_ds = ActiveFedora::Datastream.new(:dsLabel => "Page image #{facs}", :controlGroup => "E", :dsLocation => image_url)
+      image_ds  = ActiveFedora::Datastream.new(:dsLabel => "Page image #{facs}", :controlGroup => "E", :dsLocation => image_url)
       tcp_image_asset.add_datastream(image_ds)
 
       #RELS_EXT
@@ -89,7 +89,17 @@ class Monkjr::Ingester
 
   def gale_url(facs, image_set_id)
     intro = "http://callisto.ggsrv.com/imgsrv/Fetch?recordID="
-    page_num = "%04d" % facs
+
+    # there is a case (see K00122.00) where the facs is incorrect
+    # instead of the page image sequence number, it is the entire image_set_id + page_num
+    # here we account for this case
+    if facs.start_with? image_set_id
+      page_num = facs[image_set_id.size..-1]
+    else
+      # otherwise page number needs to be set to four digits, padded with zeros
+      page_num = "%04d" % facs
+    end
+
     coda = "0&contentSet=ECLL"
 
     intro + image_set_id + page_num + coda
