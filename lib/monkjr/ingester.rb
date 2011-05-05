@@ -54,18 +54,19 @@ class Monkjr::Ingester
 
   def create_page_images(book_pid, tei_xml)
     #doc        = Nokogiri::XML(File.open(tei_xml))
+    image_set_id   = get_image_set_id(tei_xml)
     page_nodes = tei_xml.css("pb")
     page_nodes.each do |pn|
       n        = pn['n']
       facs     = pn['facs']
       page_pid = "#{book_pid}.#{facs}"
 
-      create_page_image(page_pid, n, facs)
+      create_page_image(page_pid, image_set_id, n, facs)
     end
 
   end
 
-  def create_page_image(pid, n="", facs="")
+  def create_page_image(pid, image_set_id, n="", facs="")
     replacing_object(pid) do
       tcp_image_asset = Monkjr::TcpPageAsset.new(:pid => pid)
       #properties ds
@@ -73,6 +74,9 @@ class Monkjr::Ingester
       props_ds.n_values << n
       props_ds.facs_values << facs
       #content
+      image_url = gale_url(facs, image_set_id)
+      image_ds = ActiveFedora::Datastream.new(:dsLabel => "Page image #{facs}", :controlGroup => "E", :dsLocation => image_url)
+      tcp_image_asset.add_datastream(image_ds)
 
       #RELS_EXT
       tcp_image_asset.has_relationship()
@@ -81,6 +85,15 @@ class Monkjr::Ingester
       tcp_image_asset
 
     end
+  end
+
+  def gale_url(facs, image_set_id)
+    intro = "http://callisto.ggsrv.com/imgsrv/Fetch?recordID="
+    page_num = "%04d" % facs
+    coda = "0&contentSet=ECLL"
+
+    intro + image_set_id + page_num + coda
+
   end
 
   def package_file(*args)
@@ -112,6 +125,10 @@ class Monkjr::Ingester
 
   def tcpid_to_pid(tcpid)
     "bamboo:#{tcpid}"
+  end
+
+  def get_image_set_id(tei_xml)
+    tei_xml.css("TEI > teiHeader > fileDesc > publicationStmt > idno[type='ImageSetID']").text
   end
 
   def replacing_object(pid)
