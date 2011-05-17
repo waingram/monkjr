@@ -42,6 +42,7 @@ class Monkjr::Ingester
 
         tcp_book_asset.save
         #Pages
+        image_set_id = get_image_set_id(tei_xml)
         create_page_images(tcp_book_asset)
 
         tcp_book_asset
@@ -52,9 +53,8 @@ class Monkjr::Ingester
 
   end
 
-  def create_page_images(book_obj)
+  def create_page_images(book_obj, image_set_id)
     #doc        = Nokogiri::XML(File.open(tei_xml))
-    image_set_id = get_image_set_id(book_obj.datastreams['TEI'].ng_xml)
     page_nodes   = tei_xml.css("pb")
     page_nodes.each do |pn|
       n        = pn['n']
