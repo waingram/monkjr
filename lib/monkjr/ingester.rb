@@ -59,11 +59,12 @@ class Monkjr::Ingester
     page_nodes.each do |pn|
       n        = pn['n']
       facs     = pn['facs']
-      page_pid = "#{book_obj.}.#{facs}"
+      page_pid = "#{book_obj.pid}.#{facs}"
 
-      create_page_image(book_obj, page_pid, image_set_id, n, facs)
+      page = create_page_image(book_obj, page_pid, image_set_id, n, facs)
+      book_obj.add_relationship(:has_part, page)
     end
-
+    book_obj.save
   end
 
   def create_page_image(book, pid, image_set_id, n="", facs="")
