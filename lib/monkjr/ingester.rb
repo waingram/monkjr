@@ -42,7 +42,7 @@ class Monkjr::Ingester
 
         tcp_book_asset.save
         #Pages
-        create_page_images(pid, tei_xml)
+        create_page_images(tcp_book_asset)
 
         tcp_book_asset
       end
@@ -52,21 +52,21 @@ class Monkjr::Ingester
 
   end
 
-  def create_page_images(book_pid, tei_xml)
+  def create_page_images(book_obj)
     #doc        = Nokogiri::XML(File.open(tei_xml))
-    image_set_id = get_image_set_id(tei_xml)
+    image_set_id = get_image_set_id(book_obj.datastreams['TEI'].ng_xml)
     page_nodes   = tei_xml.css("pb")
     page_nodes.each do |pn|
       n        = pn['n']
       facs     = pn['facs']
       page_pid = "#{book_pid}.#{facs}"
 
-      create_page_image(page_pid, image_set_id, n, facs)
+      create_page_image(book_obj, page_pid, image_set_id, n, facs)
     end
 
   end
 
-  def create_page_image(pid, image_set_id, n="", facs="")
+  def create_page_image(book, pid, image_set_id, n="", facs="")
     replacing_object(pid) do
       tcp_image_asset = Monkjr::TcpPageAsset.new(:pid => pid)
       #properties ds
@@ -79,7 +79,7 @@ class Monkjr::Ingester
       tcp_image_asset.add_datastream(image_ds)
 
       #RELS_EXT
-      tcp_image_asset.has_relationship()
+      tcp_image_asset.add_relationship(:is_part_of, book)
 
       tcp_image_asset.save
       tcp_image_asset
