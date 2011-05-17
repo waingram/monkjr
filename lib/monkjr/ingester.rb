@@ -43,7 +43,7 @@ class Monkjr::Ingester
         tcp_book_asset.save
         #Pages
         image_set_id = get_image_set_id(tei_xml)
-        create_page_images(tcp_book_asset)
+        create_page_images(tcp_book_asset, image_set_id)
 
         tcp_book_asset
       end
@@ -67,6 +67,7 @@ class Monkjr::Ingester
   end
 
   def create_page_image(book, pid, image_set_id, n="", facs="")
+    puts ("Creating page #{facs}")
     replacing_object(pid) do
       tcp_image_asset = Monkjr::TcpPageAsset.new(:pid => pid)
       #properties ds
