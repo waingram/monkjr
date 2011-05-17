@@ -59,7 +59,7 @@ class Monkjr::Ingester
     page_nodes.each do |pn|
       n        = pn['n']
       facs     = pn['facs']
-      page_pid = "#{book_pid}.#{facs}"
+      page_pid = "#{book_obj.}.#{facs}"
 
       create_page_image(book_obj, page_pid, image_set_id, n, facs)
     end
