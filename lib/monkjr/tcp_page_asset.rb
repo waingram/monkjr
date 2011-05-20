@@ -7,7 +7,7 @@ class Monkjr::TcpPageAsset < ActiveFedora::Base
 
   def initialize(attrs={})
     super(attrs)
-    #add_relationship(:has_model, 'monkjr-cModel:basicAsset')
+    #add_relationship(:has_model, 'djatoka:jp2CModel')
   end
 
 end

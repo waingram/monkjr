@@ -43,7 +43,7 @@ class Monkjr::Ingester
         tcp_book_asset.save
         #Pages
         create_page_images(tcp_book_asset, tei_xml)
-
+        
         tcp_book_asset
       end
     rescue Exception => e
@@ -82,7 +82,7 @@ class Monkjr::Ingester
 
       #RELS_EXT
       tcp_image_asset.add_relationship(:is_part_of, book)
-
+      
       tcp_image_asset.save
       tcp_image_asset
 

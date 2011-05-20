@@ -1,6 +1,5 @@
-
 class Monkjr::TcpBookAsset < ActiveFedora::Base
-  
+
   has_metadata :name => 'teiHeader', :type => ActiveFedora::NokogiriDatastream
 
   has_metadata :name => 'descMetadata', :type => ActiveFedora::NokogiriDatastream
@@ -11,7 +10,8 @@ class Monkjr::TcpBookAsset < ActiveFedora::Base
 
   def initialize( attrs={} )
     super(attrs)
-    #add_relationship(:has_model, 'monkjr-cModel:basicAsset')
+    add_relationship(:has_model, 'hydra-cModel:commonMetadata')
+    add_relationship(:has_model, 'hydra-cModel:genericContent')
   end
 
 end
